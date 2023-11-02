@@ -3,7 +3,6 @@
 # https://oeis.org/wiki/QandA_For_New_OEIS#The_files_stripped.gz.2C_names.gz
 
 import argparse, itertools, os, re, sys
-import time  # test
 
 # regexes for validating command line arguments
 REGEX_ANUM = re.compile(  # A-number or nothing
@@ -294,6 +293,4 @@ def main():
         else:
             sys.exit("Unexpected error.")
 
-startTime = time.time()
 main()
-print(time.time() - startTime)  # was 10.7 s
