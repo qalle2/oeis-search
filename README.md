@@ -1,74 +1,93 @@
 # oeis-search
 Search offline dumps of the On-Line Encyclopedia of Integer Sequences (OEIS).
 
+Table of contents:
+* [Requirements](#requirements)
+* [Command line help text](#command-line-help-text)
+* [Example](#example)
+
+## Requirements
 Requires the files `names` and `stripped` from [here](https://oeis.org/wiki/QandA_For_New_OEIS#The_files_stripped.gz.2C_names.gz).
 
-Note that the `--subseq` and `--superseq` options haven't been implemented yet.
-
-## Help text
+## Command line help text
 ```
-usage: oeissearch.py [-h] [-y {a,nd,y}] [-d DESCRIPTION] [-n SEQNUM]
-                     [-t TERMS] [-c CONSEQTERMS] [-o {m,s}]
-                     [--namesfile NAMESFILE] [--termsfile TERMSFILE]
-                     [-b SUBSEQ] [-p SUPERSEQ]
+usage: oeissearch.py [-h] [-d DESCRIPTION] [-t TERMS] [-c CONSEQTERMS]
+                     [-b SUBSEQ] [-p SUPERSEQ] [-y {a,nd,y}] [-a ANUM]
+                     [-s {n,d,t}] [-f {m,ndt,nd,nt,n}] [--maxterms MAXTERMS]
+                     [--quiet] [--namesfile NAMESFILE] [--termsfile TERMSFILE]
 
-Search offline dumps of the OEIS. All arguments are optional and, except for
---type and --output, case insensitive. An OEIS sequence number (id) is an 'A'
-followed by six digits.
+Search offline dumps of the OEIS for sequences that match all specified
+criteria. All arguments are optional. All arguments except --type, --sort and
+--format are case insensitive.
 
 options:
   -h, --help            show this help message and exit
-  -y {a,nd,y}, --type {a,nd,y}
-                        Find sequences whose terms are in ascending order (a),
-                        nondescending order (nd) or any order (y, default).
   -d DESCRIPTION, --description DESCRIPTION
-                        Find string in sequence descriptions case-
-                        insensitively.
-  -n SEQNUM, --seqnum SEQNUM
-                        Find by prefix of sequence number. 'A' followed by 0-6
-                        digits. Default: none.
+                        Find this text in sequence descriptions, e.g. 'prime'.
   -t TERMS, --terms TERMS
-                        Find sequences that contain all of these terms, in
-                        *any* order, possibly with other terms in between. A
-                        comma-separated list of integers.
+                        Find sequences that contain all these terms, in any
+                        order, possibly with other terms in between. A comma-
+                        separated list of integers, e.g. '-1,2,3'.
   -c CONSEQTERMS, --conseqterms CONSEQTERMS
-                        Find sequences that contain all of these terms, in the
-                        *specified* order, with *no* other terms in between. A
-                        comma-separated list of integers.
-  -o {m,s}, --output {m,s}
-                        Output format of each sequence. m = multiline
-                        (default), s = single line.
+                        Find sequences that contain all these terms, in the
+                        specified order, with no other terms in between. A
+                        comma-separated list of integers, e.g. '-1,2,3'.
+  -b SUBSEQ, --subseq SUBSEQ
+                        Find subsequences of this A-number (e.g. 'A000040').
+                        Note: for each sequence, terms greater than the
+                        greatest term in this sequence are ignored. E.g. 2,4,6
+                        is considered a subsequence of 1,2,3,4,5.
+  -p SUPERSEQ, --superseq SUPERSEQ
+                        Find supersequences of this A-number (e.g. 'A000040').
+                        Note: terms greater than max(s) in this sequence are
+                        ignored for each sequence s. E.g. 1,2,3,4,5 is
+                        considered a supersequence of 2,4,6.
+  -y {a,nd,y}, --type {a,nd,y}
+                        Find sequences with their terms in this order: 'a' =
+                        ascending, 'nd' = nondescending, 'y' = any (default).
+  -a ANUM, --anum ANUM  Find by A-number prefix ('A' followed by 0-6 digits).
+                        E.g. 'A000' will find sequences A000000-A000999.
+  -s {n,d,t}, --sort {n,d,t}
+                        Print results in this order: 'n' = by A-number
+                        (default), 'd' = by description, 't' = by terms.
+  -f {m,ndt,nd,nt,n}, --format {m,ndt,nd,nt,n}
+                        How to print each sequence: 'm' = A-number &
+                        description & terms on multiple lines (default), 'ndt'
+                        = A-number & description & terms, 'nd' = A-number &
+                        description, 'nt' = A-number & terms, 'n' = A-number.
+  --maxterms MAXTERMS   Do not print more than this many first terms of each
+                        sequence. A nonnegative integer. 0 = unlimited
+                        (default).
+  --quiet               Do not print status messages ('reading file...' etc.).
   --namesfile NAMESFILE
-                        The file with descriptions of OEIS sequences. Default:
+                        File to read descriptions of sequences from. Default:
                         'names'.
   --termsfile TERMSFILE
-                        The file with terms of OEIS sequences. Default:
+                        File to read terms of sequences from. Default:
                         'stripped'.
-  -b SUBSEQ, --subseq SUBSEQ
-                        Find subsequences. An OEIS sequence number (e.g.
-                        A000040). *To be implemented*
-  -p SUPERSEQ, --superseq SUPERSEQ
-                        Find supersequences. An OEIS sequence number (e.g.
-                        A000040). *To be implemented*
 ```
 
 ## Example
+### Input
 ```
-$ python3 oeissearch.py -y a -d "prime" -n "A0000" -t "3,17"
+$ python3 oeissearch.py -d "prime" -t "1,4,5,9,64" -y a -s d
+```
 
-A000028 Let n = p_1^e_1 p_2^e_2 p_3^e_3 ... be the prime factorization of n.
-Sequence gives n such that the sum of the numbers of 1's in the binary
-expansions of e_1, e_2, e_3, ... is odd.
-2, 3, 4, 5, 7, 9, 11, 13, 16, 17, 19, 23, 24, 25, 29, 30, 31, 37, 40, 41, 42,
-43, 47, 49, 53, 54, 56, 59, 60, 61, 66, 67, 70, 71, 72, 73, 78, 79, 81, 83, 84,
-88, 89, 90, 96, 97, 101, 102, 103, 104, 105, 107, 108, 109, 110, 113, 114, 121,
-126, 127, 128, 130, 131, 132, 135, 136, 137
+### Output
+```
+Searching 'names'...
+Searching 'stripped'...
 
-A000040 The prime numbers.
-2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73,
-79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157,
-163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241,
-251, 257, 263, 269, 271
+A051038: 11-smooth numbers: numbers whose prime divisors are all <= 11.
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 18, 20, 21, 22, 24, 25, 27,
+28, 30, 32, 33, 35, 36, 40, 42, 44, 45, 48, 49, 50, 54, 55, 56, 60, 63, 64, 66,
+70, 72, 75, 77, 80, 81, 84, 88, 90, 96, 98, 99, 100, 105, 108, 110, 112, 120,
+121, 125, 126, 128, 132, 135, 140
 
+A080197: 13-smooth numbers: numbers whose prime divisors are all <= 13.
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 21, 22, 24, 25,
+26, 27, 28, 30, 32, 33, 35, 36, 39, 40, 42, 44, 45, 48, 49, 50, 52, 54, 55, 56,
+60, 63, 64, 65, 66, 70, 72, 75, 77, 78, 80, 81, 84, 88, 90, 91, 96, 98, 99,
+100, 104, 105, 108, 110, 112, 117, 120
+```
 (snip)
-```
