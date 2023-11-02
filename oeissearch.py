@@ -2,7 +2,7 @@
 # requires the files "names" and "stripped" from
 # https://oeis.org/wiki/QandA_For_New_OEIS#The_files_stripped.gz.2C_names.gz
 
-import argparse, itertools, os, re, sys
+import argparse, os, re, sys
 
 # regexes for validating command line arguments
 REGEX_ANUM = re.compile(  # A-number or nothing
@@ -189,14 +189,10 @@ def get_seq_terms(seqToFind, termsFile):
     sys.exit(f"{seqToFind} not found in '{termsFile}'.")
 
 def is_slice_of(needle, haystack):
-    # is iterable (e.g. tuple) a slice of another iterable (e.g. tuple)?
-    # e.g. is_slice_of([2,3], [1,2,3,4]) = True
-    return not needle or (
-        set(needle).issubset(set(haystack))  # speed optimization
-        and any(
-            needle == haystack[s:e]
-            for (s, e) in itertools.combinations(range(len(haystack) + 1), 2)
-        )
+    # is an iterable a slice of another iterable?
+    return not needle or any(
+        needle == haystack[i:i+len(needle)]
+        for i in range(len(haystack) - len(needle) + 1)
     )
 
 def is_seq_ascending(seq):
