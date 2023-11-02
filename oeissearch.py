@@ -189,11 +189,14 @@ def get_seq_terms(seqToFind, termsFile):
     sys.exit(f"{seqToFind} not found in '{termsFile}'.")
 
 def is_slice_of(needle, haystack):
-    # is iterable (e.g. tuple) a slice of another iterable (e.g. tuple);
+    # is iterable (e.g. tuple) a slice of another iterable (e.g. tuple)?
     # e.g. is_slice_of([2,3], [1,2,3,4]) = True
-    return not needle or any(
-        needle == haystack[s:e]
-        for (s, e) in itertools.combinations(range(len(haystack) + 1), 2)
+    return not needle or (
+        set(needle).issubset(set(haystack))  # speed optimization
+        and any(
+            needle == haystack[s:e]
+            for (s, e) in itertools.combinations(range(len(haystack) + 1), 2)
+        )
     )
 
 def is_seq_ascending(seq):
