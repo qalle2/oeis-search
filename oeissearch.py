@@ -3,8 +3,9 @@
 # https://oeis.org/wiki/QandA_For_New_OEIS#The_files_stripped.gz.2C_names.gz
 
 import argparse, itertools, os, re, sys
+import time  # test
 
-# regexes for validating command line arguments and OEIS files
+# regexes for validating command line arguments
 REGEX_ANUM = re.compile(  # A-number or nothing
     r"^( A[0-9]{6} )?$", re.VERBOSE | re.IGNORECASE
 )
@@ -14,11 +15,13 @@ REGEX_ANUM_PREFIX = re.compile(  # prefix of an A-number
 REGEX_INTEGER_LIST = re.compile(  # zero or more integers separated by commas
     r"^( -?[0-9]+ ( ,-?[0-9]+ )* )?$", re.VERBOSE | re.IGNORECASE
 )
+
+# regexes for validating OEIS files
 REGEX_NAMES_LINE = re.compile(  # non-comment line in names file
-    r"^(A[0-9]{6}) (.+)$", re.IGNORECASE
+    r"^(A[0-9]{6})\ (.+)$", re.VERBOSE | re.IGNORECASE
 )
 REGEX_TERMS_LINE = re.compile(  # non-comment line in terms file
-    r"^(A[0-9]{6}) (,(-?[0-9]+,)+)$", re.IGNORECASE
+    r"^(A[0-9]{6})\ ,( -?[0-9]+ (,-?[0-9]+)* ),$", re.VERBOSE | re.IGNORECASE
 )
 
 def parse_args():
@@ -39,13 +42,18 @@ def parse_args():
         "-t", "--terms", type=str, default="",
         help="Find sequences that contain all these terms, in any order, "
         "possibly with other terms in between. A comma-separated list of "
-        "integers, e.g. '-1,2,3'."
+        "integers, e.g. '1,2,3'."
     )
     parser.add_argument(
         "-c", "--conseqterms", type=str, default="",
         help="Find sequences that contain all these terms, in the specified "
         "order, with no other terms in between. A comma-separated list of "
-        "integers, e.g. '-1,2,3'."
+        "integers, e.g. '1,2,3'."
+    )
+    parser.add_argument(
+        "-n", "--noterms", type=str, default="",
+        help="Find sequences that do not contain any of these terms. A "
+        "comma-separated list of integers, e.g. '1,2,3'."
     )
     parser.add_argument(
         "-b", "--subseq", type=str, default="",
@@ -61,8 +69,8 @@ def parse_args():
     )
     parser.add_argument(
         "-y", "--type", choices=("a", "nd", "y"), default="y",
-        help="Find sequences with their terms in this order: 'a' = ascending, "
-        "'nd' = nondescending, 'y' = any (default)."
+        help="Find sequences with their terms in this order: 'a' = strictly "
+        "ascending, 'nd' = nondescending, 'y' = any (default)."
     )
     parser.add_argument(
         "-a", "--anum", type=str, default="",
@@ -72,15 +80,15 @@ def parse_args():
 
     # output
     parser.add_argument(
-        "-s", "--sort", choices=("n", "d", "t"), default="a",
-        help="Print results in this order: 'n' = by A-number (default), 'd' = "
+        "-s", "--sort", choices=("a", "d", "t"), default="a",
+        help="Print results in this order: 'a' = by A-number (default), 'd' = "
         "by description, 't' = by terms."
     )
     parser.add_argument(
-        "-f", "--format", choices=("m", "ndt", "nd", "nt", "n"), default="m",
+        "-f", "--format", choices=("m", "adt", "ad", "at", "a"), default="m",
         help="How to print each sequence: 'm' = A-number & description & "
-        "terms on multiple lines (default), 'ndt' = A-number & description & "
-        "terms, 'nd' = A-number & description, 'nt' = A-number & terms, 'n' = "
+        "terms on multiple lines (default), 'adt' = A-number & description & "
+        "terms, 'ad' = A-number & description, 'at' = A-number & terms, 'a' = "
         "A-number."
     )
     parser.add_argument(
@@ -110,6 +118,8 @@ def parse_args():
         sys.exit("Value of --terms argument is not valid.")
     if REGEX_INTEGER_LIST.search(args.conseqterms) is None:
         sys.exit("Value of --conseqterms argument is not valid.")
+    if REGEX_INTEGER_LIST.search(args.noterms) is None:
+        sys.exit("Value of --noterms argument is not valid.")
     if REGEX_ANUM.search(args.subseq) is None:
         sys.exit("Value of --subseq argument is not valid.")
     if REGEX_ANUM.search(args.superseq) is None:
@@ -148,8 +158,8 @@ def parse_names_file(filename):
 def parse_terms_file(filename):
     # parse OEIS terms file; syntax:
     #     # comment
-    #     A000000 ,1,2,3,4,5
-    # generate: (a_number, tuple_of_terms)
+    #     A000000 ,1,2,3,
+    # generate: ("A000000", "1,2,3")
 
     with open(filename, "rt") as handle:
         handle.seek(0)
@@ -159,16 +169,25 @@ def parse_terms_file(filename):
                 match = REGEX_TERMS_LINE.search(line)
                 if match is None:
                     sys.exit("Syntax error in terms file: " + line)
-                yield (
-                    match.group(1),
-                    tuple(int(n) for n in match.group(2).split(",") if n)
-                )
+                # don't split the terms here (slow and not always needed)
+                yield match.group(1, 2)
 
 def parse_int_list(stri):
     # parse a comma-separated list of integers from args
     if not stri:
         return tuple()
     return tuple(int(i) for i in stri.split(","))
+
+def get_seq_terms(seqToFind, termsFile):
+    # get terms of specified sequence as a set (seq is from args)
+
+    seqToFind = seqToFind.upper()
+    print(f"Getting info on {seqToFind} from '{termsFile}'...")
+    termsFound = None
+    for (seq, terms) in parse_terms_file(termsFile):
+        if seq == seqToFind:
+            return set(int(n) for n in terms.split(","))
+    sys.exit(f"{seqToFind} not found in '{termsFile}'.")
 
 def is_slice_of(needle, haystack):
     # is iterable (e.g. tuple) a slice of another iterable (e.g. tuple);
@@ -185,17 +204,6 @@ def is_seq_ascending(seq):
 def is_seq_nondescending(seq):
     # is each term greater than or equal to the preceding one?
     return all(b >= a for (a, b) in zip(seq, seq[1:]))
-
-def get_seq_terms(seqToFind, termsFile):
-    # get terms of specified sequence as a set (seq is from args)
-
-    seqToFind = seqToFind.upper()
-    print(f"Getting info on {seqToFind} from '{termsFile}'...")
-    termsFound = None
-    for (seq, terms) in parse_terms_file(termsFile):
-        if seq == seqToFind:
-            return set(terms)
-    sys.exit(f"{seqToFind} not found in '{termsFile}'.")
 
 def is_subset(set1, set2):
     # does each term of set1 also occur in set2?
@@ -220,6 +228,7 @@ def main():
 
     argTermsParsed = parse_int_list(args.terms)
     argConseqTermsParsed = parse_int_list(args.conseqterms)
+    argNoTermsParsed = parse_int_list(args.noterms)
     if args.subseq:
         subsetOf = get_seq_terms(args.subseq, args.termsfile)
     if args.superseq:
@@ -230,16 +239,18 @@ def main():
         print(f"Searching '{args.termsfile}'...")
     finalResults = {}
     for (seq, terms) in parse_terms_file(args.termsfile):
-        if (
-            seq in nameResults
-            and all(t in terms for t in argTermsParsed)
-            and is_slice_of(argConseqTermsParsed, terms)
-            and (args.type     != "a"  or is_seq_ascending(terms))
-            and (args.type     != "nd" or is_seq_nondescending(terms))
-            and (args.subseq   == ""   or is_subset(set(terms), subsetOf))
-            and (args.superseq == ""   or is_subset(supersetOf, set(terms)))
-        ):
-            finalResults[seq] = (None, terms)  # description filled in later
+        if seq in nameResults:
+            terms = tuple(int(n) for n in terms.split(","))
+            if (
+                all(t in terms for t in argTermsParsed)
+                and is_slice_of(argConseqTermsParsed, terms)
+                and not any(t in terms for t in argNoTermsParsed)
+                and (args.type != "a"  or is_seq_ascending(terms))
+                and (args.type != "nd" or is_seq_nondescending(terms))
+                and (args.subseq   == "" or is_subset(set(terms), subsetOf))
+                and (args.superseq == "" or is_subset(supersetOf, set(terms)))
+            ):
+                finalResults[seq] = ("???", terms)  # description added later
     del nameResults
 
     # get descriptions of final results
@@ -248,13 +259,15 @@ def main():
             finalResults[seq] = (descr, finalResults[seq][1])
 
     # sort results
-    if args.sort == "n":
+    if args.sort == "a":
         sortedResults = sorted(finalResults)
     elif args.sort == "d":
         sortedResults = sorted(finalResults, key=lambda s: finalResults[s][0])
         sortedResults.sort(key=lambda s: finalResults[s][0].lower())
-    else:  # "t"
+    elif args.sort == "t":
         sortedResults = sorted(finalResults, key=lambda s: finalResults[s][1])
+    else:
+        sys.exit("Unexpected error.")
 
     if not args.quiet:
         print()
@@ -266,17 +279,21 @@ def main():
             terms = terms[:args.maxterms]
         terms = ", ".join(str(t) for t in terms)
 
-        if args.format == "ndt":
-            print(f"{seq}:", descr, terms)
-        elif args.format == "nd":
-            print(f"{seq}:", descr)
-        elif args.format == "nt":
-            print(f"{seq}:", terms)
-        elif args.format == "n":
-            print(seq)
-        else:  # "m"
+        if args.format == "m":
             print(f"{seq}:", descr)
             print(terms)
             print()
+        elif args.format == "adt":
+            print(f"{seq}:", descr, terms)
+        elif args.format == "ad":
+            print(f"{seq}:", descr)
+        elif args.format == "at":
+            print(f"{seq}:", terms)
+        elif args.format == "a":
+            print(seq)
+        else:
+            sys.exit("Unexpected error.")
 
+startTime = time.time()
 main()
+print(time.time() - startTime)  # was 10.7 s
