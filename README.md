@@ -4,18 +4,20 @@ Search offline dumps of the On-Line Encyclopedia of Integer Sequences (OEIS).
 Table of contents:
 * [Requirements](#requirements)
 * [Command line help text](#command-line-help-text)
-* [Example](#example)
+* [Example 1](#example-1)
+* [Example 2](#example-2)
 
 ## Requirements
 Requires the files `names` and `stripped` from [here](https://oeis.org/wiki/QandA_For_New_OEIS#The_files_stripped.gz.2C_names.gz).
 
 ## Command line help text
 ```
-usage: oeissearch.py [-h] [-d DESCRIPTION] [-t TERMS] [-c CONSEQTERMS]
-                     [-n NOTERMS] [-b SUBSEQ] [-p SUPERSEQ] [-y {a,nd,y}]
-                     [-a ANUM] [-s {a,d,t}] [-f {m,adt,ad,at,a}]
-                     [--maxterms MAXTERMS] [--quiet] [--namesfile NAMESFILE]
-                     [--termsfile TERMSFILE]
+usage: oeissearch.py [-h] [--descr DESCR] [--terms TERMS] [--consec CONSEC]
+                     [--noterms NOTERMS] [--lower LOWER] [--upper UPPER]
+                     [--subseq SUBSEQ] [--superseq SUPERSEQ] [--type {a,nd,y}]
+                     [--anumber ANUMBER] [--sort {a,d,t}]
+                     [--format {m,adt,ad,at,a}] [--maxterms MAXTERMS]
+                     [--quiet] [--namefile NAMEFILE] [--termfile TERMFILE]
 
 Search offline dumps of the OEIS for sequences that match all specified
 criteria. All arguments are optional. All arguments except --type, --sort and
@@ -23,39 +25,35 @@ criteria. All arguments are optional. All arguments except --type, --sort and
 
 options:
   -h, --help            show this help message and exit
-  -d DESCRIPTION, --description DESCRIPTION
-                        Find this text in sequence descriptions, e.g. 'prime'.
-  -t TERMS, --terms TERMS
-                        Find sequences that contain all these terms, in any
+  --descr DESCR         Find this text in sequence descriptions, e.g. 'prime'.
+  --terms TERMS         Find sequences that contain all these terms, in any
                         order, possibly with other terms in between. A comma-
                         separated list of integers, e.g. '1,2,3'.
-  -c CONSEQTERMS, --conseqterms CONSEQTERMS
-                        Find sequences that contain all these terms, in the
+  --consec CONSEC       Find sequences that contain all these terms, in the
                         specified order, with no other terms in between. A
                         comma-separated list of integers, e.g. '1,2,3'.
-  -n NOTERMS, --noterms NOTERMS
-                        Find sequences that do not contain any of these terms.
+  --noterms NOTERMS     Find sequences that do not contain any of these terms.
                         A comma-separated list of integers, e.g. '1,2,3'.
-  -b SUBSEQ, --subseq SUBSEQ
-                        Find subsequences of this A-number (e.g. 'A000040').
+  --lower LOWER         Find sequences whose smallest term is this or greater.
+                        An integer.
+  --upper UPPER         Find sequences whose greatest term is this or smaller.
+                        An integer.
+  --subseq SUBSEQ       Find subsequences of this A-number (e.g. 'A000040').
                         Note: for each sequence, terms greater than the
-                        greatest term in this sequence are ignored. E.g. 2,4,6
-                        is considered a subsequence of 1,2,3,4,5.
-  -p SUPERSEQ, --superseq SUPERSEQ
-                        Find supersequences of this A-number (e.g. 'A000040').
+                        greatest term in this sequence are ignored. E.g. 2,4
+                        is considered a subsequence of 1,2,3.
+  --superseq SUPERSEQ   Find supersequences of this A-number (e.g. 'A000040').
                         Note: terms greater than max(s) in this sequence are
-                        ignored for each sequence s. E.g. 1,2,3,4,5 is
-                        considered a supersequence of 2,4,6.
-  -y {a,nd,y}, --type {a,nd,y}
-                        Find sequences with their terms in this order: 'a' =
+                        ignored for each sequence s. E.g. 1,2,3 is considered
+                        a supersequence of 2,4.
+  --type {a,nd,y}       Find sequences with their terms in this order: 'a' =
                         strictly ascending, 'nd' = nondescending, 'y' = any
                         (default).
-  -a ANUM, --anum ANUM  Find by A-number prefix ('A' followed by 0-6 digits).
+  --anumber ANUMBER     Find by A-number prefix ('A' followed by 0-6 digits).
                         E.g. 'A000' will find sequences A000000-A000999.
-  -s {a,d,t}, --sort {a,d,t}
-                        Print results in this order: 'a' = by A-number
+  --sort {a,d,t}        Print results in this order: 'a' = by A-number
                         (default), 'd' = by description, 't' = by terms.
-  -f {m,adt,ad,at,a}, --format {m,adt,ad,at,a}
+  --format {m,adt,ad,at,a}
                         How to print each sequence: 'm' = A-number &
                         description & terms on multiple lines (default), 'adt'
                         = A-number & description & terms, 'ad' = A-number &
@@ -64,18 +62,16 @@ options:
                         sequence. A nonnegative integer. 0 = unlimited
                         (default).
   --quiet               Do not print status messages ('reading file...' etc.).
-  --namesfile NAMESFILE
-                        File to read descriptions of sequences from. Default:
+  --namefile NAMEFILE   File to read descriptions of sequences from. Default:
                         'names'.
-  --termsfile TERMSFILE
-                        File to read terms of sequences from. Default:
+  --termfile TERMFILE   File to read terms of sequences from. Default:
                         'stripped'.
 ```
 
-## Example
+## Example 1
 ### Input
 ```
-$ python3 oeissearch.py -d "prime" -t "1,4,5,9,64" -y a -s d
+$ python3 oeissearch.py --descr "prime" --terms "1,4,5,9,64" --type a --sort d
 ```
 
 ### Output
@@ -96,4 +92,20 @@ A080197: 13-smooth numbers: numbers whose prime divisors are all <= 13.
 100, 104, 105, 108, 110, 112, 117, 120
 
 (snip)
+```
+
+## Example 2
+### Input
+```
+$ python3 oeissearch.py --consec 19,84 --upper 200 --format ad --quiet
+```
+
+### Output
+```
+A065266: A065264 conjugated with A059893, inverse of A065265.
+A065290: A065288 conjugated with A059893, inverse of A065289.
+A173823: a(n) shows the digit sum of a(n+1) + a(n+2).
+A191514: Lehrer's elementary sequence.
+A294886: Sum of deficient proper divisors of n.
+A340587: a(n) is the least root of A340586(n).
 ```
