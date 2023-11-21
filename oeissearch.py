@@ -65,18 +65,6 @@ def parse_args():
         "integer."
     )
     parser.add_argument(
-        "--subseq", type=str, default="",
-        help="Find subsequences of this A-number (e.g. 'A000040'). Note: for "
-        "each sequence, terms greater than the greatest term in this sequence "
-        "are ignored. E.g. 2,4 is considered a subsequence of 1,2,3."
-    )
-    parser.add_argument(
-        "--superseq", type=str, default="",
-        help="Find supersequences of this A-number (e.g. 'A000040'). Note: "
-        "terms greater than max(s) in this sequence are ignored for each "
-        "sequence s. E.g. 1,2,3 is considered a supersequence of 2,4."
-    )
-    parser.add_argument(
         "--type", choices=("a", "nd", "y"), default="y",
         help="Find sequences with their terms in this order: 'a' = strictly "
         "ascending, 'nd' = nondescending, 'y' = any (default)."
@@ -129,10 +117,6 @@ def parse_args():
         sys.exit("Value of --consec argument is not valid.")
     if REGEX_INTEGER_LIST.search(args.noterms) is None:
         sys.exit("Value of --noterms argument is not valid.")
-    if REGEX_ANUM.search(args.subseq) is None:
-        sys.exit("Value of --subseq argument is not valid.")
-    if REGEX_ANUM.search(args.superseq) is None:
-        sys.exit("Value of --superseq argument is not valid.")
     if REGEX_ANUM_PREFIX.search(args.anumber) is None:
         sys.exit("Value of --anumber argument is not valid.")
 
@@ -187,17 +171,6 @@ def parse_int_list(stri):
         return tuple()
     return tuple(int(i) for i in stri.split(","))
 
-def get_seq_terms(seqToFind, termsFile):
-    # get terms of specified sequence as a set (seq is from args)
-
-    seqToFind = seqToFind.upper()
-    print(f"Getting info on {seqToFind} from '{termsFile}'...")
-    termsFound = None
-    for (seq, terms) in parse_terms_file(termsFile):
-        if seq == seqToFind:
-            return set(int(n) for n in terms.split(","))
-    sys.exit(f"{seqToFind} not found in '{termsFile}'.")
-
 def is_slice_of(needle, haystack):
     # is an iterable a slice of another iterable?
     return not needle or any(
@@ -212,13 +185,6 @@ def is_seq_ascending(seq):
 def is_seq_nondescending(seq):
     # is each term greater than or equal to the preceding one?
     return all(b >= a for (a, b) in zip(seq, seq[1:]))
-
-def is_subset(set1, set2):
-    # of terms in set1 <= max(set2), do they all occur in set2 and is there
-    # at least one of them?
-    # e.g. is_subset({2,4}, {1,2,3}) = True
-    set1 = set(t for t in set1 if t <= max(set2))
-    return set1 and set1.issubset(set2)
 
 def main():
     args = parse_args()
@@ -237,10 +203,6 @@ def main():
     argTermsParsed = parse_int_list(args.terms)
     argConsecParsed = parse_int_list(args.consec)
     argNoTermsParsed = parse_int_list(args.noterms)
-    if args.subseq:
-        subsetOf = get_seq_terms(args.subseq, args.termfile)
-    if args.superseq:
-        supersetOf = get_seq_terms(args.superseq, args.termfile)
 
     # get final results from nameResults and the terms file
     if not args.quiet:
@@ -257,8 +219,6 @@ def main():
                 and (args.upper is None or max(terms) <= args.upper)
                 and (args.type != "a"  or is_seq_ascending(terms))
                 and (args.type != "nd" or is_seq_nondescending(terms))
-                and (args.subseq   == "" or is_subset(set(terms), subsetOf))
-                and (args.superseq == "" or is_subset(supersetOf, set(terms)))
             ):
                 finalResults[seq] = ("???", terms)  # description added later
     del nameResults

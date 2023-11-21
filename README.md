@@ -1,5 +1,5 @@
 # oeis-search
-Search offline dumps of the On-Line Encyclopedia of Integer Sequences (OEIS).
+Search offline dumps of the [On-Line Encyclopedia of Integer Sequences](https://oeis.org) (OEIS).
 
 Table of contents:
 * [Requirements](#requirements)
@@ -14,8 +14,7 @@ Requires the files `names` and `stripped` from [here](https://oeis.org/wiki/Qand
 ```
 usage: oeissearch.py [-h] [--descr DESCR] [--terms TERMS] [--consec CONSEC]
                      [--noterms NOTERMS] [--lower LOWER] [--upper UPPER]
-                     [--subseq SUBSEQ] [--superseq SUPERSEQ] [--type {a,nd,y}]
-                     [--anumber ANUMBER] [--sort {a,d,t}]
+                     [--type {a,nd,y}] [--anumber ANUMBER] [--sort {a,d,t}]
                      [--format {m,adt,ad,at,a}] [--maxterms MAXTERMS]
                      [--quiet] [--namefile NAMEFILE] [--termfile TERMFILE]
 
@@ -38,14 +37,6 @@ options:
                         An integer.
   --upper UPPER         Find sequences whose greatest term is this or smaller.
                         An integer.
-  --subseq SUBSEQ       Find subsequences of this A-number (e.g. 'A000040').
-                        Note: for each sequence, terms greater than the
-                        greatest term in this sequence are ignored. E.g. 2,4
-                        is considered a subsequence of 1,2,3.
-  --superseq SUPERSEQ   Find supersequences of this A-number (e.g. 'A000040').
-                        Note: terms greater than max(s) in this sequence are
-                        ignored for each sequence s. E.g. 1,2,3 is considered
-                        a supersequence of 2,4.
   --type {a,nd,y}       Find sequences with their terms in this order: 'a' =
                         strictly ascending, 'nd' = nondescending, 'y' = any
                         (default).
@@ -69,13 +60,11 @@ options:
 ```
 
 ## Example 1
-### Input
 ```
 $ python3 oeissearch.py --descr "prime" --terms "1,4,5,9,64" --type a --sort d
-```
+Searching 'names'...
+Searching 'stripped'...
 
-### Output
-```
 Searching 'names'...
 Searching 'stripped'...
 
@@ -95,13 +84,8 @@ A080197: 13-smooth numbers: numbers whose prime divisors are all <= 13.
 ```
 
 ## Example 2
-### Input
 ```
 $ python3 oeissearch.py --consec 19,84 --upper 200 --format ad --quiet
-```
-
-### Output
-```
 A065266: A065264 conjugated with A059893, inverse of A065265.
 A065290: A065288 conjugated with A059893, inverse of A065289.
 A173823: a(n) shows the digit sum of a(n+1) + a(n+2).
