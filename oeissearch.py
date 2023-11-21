@@ -5,9 +5,6 @@
 import argparse, os, re, sys
 
 # regexes for validating command line arguments
-REGEX_ANUM = re.compile(  # A-number or nothing
-    r"^( A[0-9]{6} )?$", re.VERBOSE | re.IGNORECASE
-)
 REGEX_INTEGER_LIST = re.compile(  # zero or more integers separated by commas
     r"^( -?[0-9]+ ( ,-?[0-9]+ )* )?$", re.VERBOSE | re.IGNORECASE
 )
@@ -62,9 +59,14 @@ def parse_args():
         "integer."
     )
     parser.add_argument(
-        "--type", choices=("a", "nd", "y"), default="y",
-        help="Find sequences with their terms in this order: 'a' = strictly "
-        "ascending, 'nd' = nondescending, 'y' = any (default)."
+        "--termorder", choices=("a", "d", "y"), default="y",
+        help="Find sequences with their terms in this order: 'a' = (non-"
+        "strictly) ascending, 'd' = (non-strictly) descending, 'y' = any "
+        "(default)."
+    )
+    parser.add_argument(
+        "--distinct", action="store_true",
+        help="Only find sequences in which all terms are distinct."
     )
     parser.add_argument(
         "--minanum", type=int, default=0,
@@ -182,12 +184,12 @@ def is_slice_of(needle, haystack):
     )
 
 def is_seq_ascending(seq):
-    # is each term greater than the preceding one?
-    return all(b > a for (a, b) in zip(seq, seq[1:]))
-
-def is_seq_nondescending(seq):
     # is each term greater than or equal to the preceding one?
     return all(b >= a for (a, b) in zip(seq, seq[1:]))
+
+def is_seq_descending(seq):
+    # is each term less than or equal to the preceding one?
+    return all(b <= a for (a, b) in zip(seq, seq[1:]))
 
 def main():
     args = parse_args()
@@ -220,11 +222,15 @@ def main():
                 and not any(t in terms for t in argNoTermsParsed)
                 and (args.lower is None or min(terms) >= args.lower)
                 and (args.upper is None or max(terms) <= args.upper)
-                and (args.type != "a"  or is_seq_ascending(terms))
-                and (args.type != "nd" or is_seq_nondescending(terms))
+                and (args.termorder != "a" or is_seq_ascending(terms))
+                and (args.termorder != "d" or is_seq_descending(terms))
+                and (not args.distinct or len(terms) == len(set(terms)))
             ):
                 finalResults[seq] = ("???", terms)  # description added later
     del nameResults
+
+    if not args.quiet:
+        print(f"Found {len(finalResults)} sequence(s).")
 
     # get descriptions of final results
     for (seq, descr) in parse_names_file(args.namefile):

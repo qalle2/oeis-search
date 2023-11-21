@@ -14,10 +14,10 @@ Requires the files `names` and `stripped` from [here](https://oeis.org/wiki/Qand
 ```
 usage: oeissearch.py [-h] [--descr DESCR] [--terms TERMS] [--consec CONSEC]
                      [--noterms NOTERMS] [--lower LOWER] [--upper UPPER]
-                     [--type {a,nd,y}] [--minanum MINANUM] [--maxanum MAXANUM]
-                     [--sort {a,d,t}] [--format {m,adt,ad,at,a}]
-                     [--maxterms MAXTERMS] [--quiet] [--namefile NAMEFILE]
-                     [--termfile TERMFILE]
+                     [--termorder {a,d,y}] [--distinct] [--minanum MINANUM]
+                     [--maxanum MAXANUM] [--sort {a,d,t}]
+                     [--format {m,adt,ad,at,a}] [--maxterms MAXTERMS]
+                     [--quiet] [--namefile NAMEFILE] [--termfile TERMFILE]
 
 Search offline dumps of the OEIS for sequences that match all specified
 criteria. All arguments are optional. All arguments except --type, --sort and
@@ -38,9 +38,10 @@ options:
                         An integer.
   --upper UPPER         Find sequences whose greatest term is this or smaller.
                         An integer.
-  --type {a,nd,y}       Find sequences with their terms in this order: 'a' =
-                        strictly ascending, 'nd' = nondescending, 'y' = any
-                        (default).
+  --termorder {a,d,y}   Find sequences with their terms in this order: 'a' =
+                        (non-strictly) ascending, 'd' = (non-strictly)
+                        descending, 'y' = any (default).
+  --distinct            Only find sequences in which all terms are distinct.
   --minanum MINANUM     Minimum A-number. 0 or greater, default=0.
   --maxanum MAXANUM     Maximum A-number. Greater than or equal to --minanum,
                         default=999999.
@@ -63,12 +64,11 @@ options:
 
 ## Example 1
 ```
-$ python3 oeissearch.py --descr "prime" --terms "1,4,5,9,64" --type a --sort d
+$ python3 oeissearch.py --descr "prime" --terms "1,4,5,9,64" --termorder a \
+--distinct --sort d
 Searching 'names'...
 Searching 'stripped'...
-
-Searching 'names'...
-Searching 'stripped'...
+Found 256 sequence(s).
 
 A051038: 11-smooth numbers: numbers whose prime divisors are all <= 11.
 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 18, 20, 21, 22, 24, 25, 27,
