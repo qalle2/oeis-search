@@ -26,82 +26,31 @@ def parse_args():
     )
 
     # search - names file
-    parser.add_argument(
-        "--minanum", type=int, default=0,
-        help="Minimum A-number."
-    )
-    parser.add_argument(
-        "--maxanum", type=int, default=999999,
-        help="Maximum A-number."
-    )
-    parser.add_argument(
-        "--descr", type=str, default="",
-        help="Text in sequence descriptions."
-    )
+    parser.add_argument("--minanum", type=int, default=0)
+    parser.add_argument("--maxanum", type=int, default=999999)
+    parser.add_argument("--descr", type=str, default="")
 
     # search - terms file
-    parser.add_argument(
-        "--onlyfirst", type=int, default=0,
-        help="Only consider this many first terms."
-    )
-    parser.add_argument(
-        "--terms", type=str, default="",
-        help="All these terms."
-    )
-    parser.add_argument(
-        "--consec", type=str, default="",
-        help="All these terms, in this order, without other terms in between."
-    )
-    parser.add_argument(
-        "--noterms", type=str, default="",
-        help="None of these terms."
-    )
-    parser.add_argument(
-        "--lower", type=int, default=None,
-        help="Smallest term is this or greater."
-    )
-    parser.add_argument(
-        "--upper", type=int, default=None,
-        help="Greatest term is this or smaller."
-    )
-    parser.add_argument(
-        "--termorder", choices=("a", "d", "y"), default="y",
-        help="Order of terms: 'a' = ascending, 'd' = descending, 'y' = any."
-    )
-    parser.add_argument(
-        "--distinct", action="store_true",
-        help="No duplicate terms."
-    )
+    parser.add_argument("--searchfirst", type=int, default=0)
+    parser.add_argument("--terms", type=str, default="")
+    parser.add_argument("--consec", type=str, default="")
+    parser.add_argument("--noterms", type=str, default="")
+    parser.add_argument("--lower", type=int, default=None)
+    parser.add_argument("--upper", type=int, default=None)
+    parser.add_argument("--termorder", choices=("a", "d", "y"), default="y")
+    parser.add_argument("--distinct", action="store_true")
 
     # output
+    parser.add_argument("--sort", choices=("a", "d", "t"), default="a")
     parser.add_argument(
-        "--sort", choices=("a", "d", "t"), default="a",
-        help="Sort results by: 'a' = A-number, 'd' = description, 't' = terms."
+        "--format", choices=("m", "adt", "ad", "at", "a"), default="m"
     )
-    parser.add_argument(
-        "--format", choices=("m", "adt", "ad", "at", "a"), default="m",
-        help="Print results as: 'm' = multiline, 'adt' = A-number & "
-        "description & terms, 'ad' = A-number & description, 'at' = A-number "
-        "& terms, 'a' = A-number."
-    )
-    parser.add_argument(
-        "--maxprint", type=int, default=0,
-        help="Only print this many first terms."
-    )
-    parser.add_argument(
-        "--quiet", action="store_true",
-        help="Don't print status messages."
-    )
+    parser.add_argument("--maxprint", type=int, default=0)
+    parser.add_argument("--quiet", action="store_true")
 
     # other
-    parser.add_argument(
-        "--namefile", type=str, default="names",
-        help="File with sequence names."
-    )
-    parser.add_argument(
-        "--termfile", type=str, default="stripped",
-        help="File with sequence terms."
-    )
+    parser.add_argument("--namefile", type=str, default="names")
+    parser.add_argument("--termfile", type=str, default="stripped")
 
     args = parser.parse_args()
 
@@ -112,8 +61,8 @@ def parse_args():
         sys.exit("Value of --maxanum argument is not valid.")
 
     # search - terms file
-    if args.onlyfirst < 0:
-        sys.exit("Value of --onlyfirst argument is not valid.")
+    if args.searchfirst < 0:
+        sys.exit("Value of --searchfirst argument is not valid.")
     if REGEX_INTEGER_LIST.search(args.terms) is None:
         sys.exit("Value of --terms argument is not valid.")
     if REGEX_INTEGER_LIST.search(args.consec) is None:
@@ -213,7 +162,10 @@ def main():
         if seq in nameResults:
             allTerms = tuple(int(n) for n in terms.split(","))
             # terms to search
-            terms = allTerms[:args.onlyfirst] if args.onlyfirst else allTerms
+            if args.searchfirst:
+                terms = allTerms[:args.searchfirst]
+            else:
+                terms = allTerms
             if (
                 all(t in terms for t in argTermsParsed)
                 and is_slice_of(argConsecParsed, terms)

@@ -1,5 +1,5 @@
 # oeis-search
-Search for sequences in offline dumps of the [On-Line Encyclopedia of Integer Sequences](https://oeis.org) (OEIS). The program prints sequences that match *all* specified criteria.
+A command-line Python program that searches offline dumps of the [On-Line Encyclopedia of Integer Sequences](https://oeis.org) (OEIS) and prints sequences that match *all* specified criteria.
 
 Table of contents:
 * [Requirements](#requirements)
@@ -19,7 +19,7 @@ All arguments are optional.
 * `--descr TEXT`: Find sequences whose description contains `TEXT` case-insensitively.
 
 ### How to search the terms file
-* `--onlyfirst INTEGER`: When searching, only consider `INTEGER` first terms in each sequence. (The rest are ignored.) `INTEGER` must be 0 or greater. 0 means all terms are searched. The default is 0. This option affects all other options in this section.
+* `--searchfirst INTEGER`: When searching, only consider `INTEGER` first terms in each sequence. (The rest are ignored.) `INTEGER` must be 0 or greater. 0 means all terms are searched. The default is 0. This option affects all other options in this section.
 * `--terms LIST`: Find sequences that contain all terms specified by `LIST`, in *any* order, possibly *with* other terms in between. `LIST` is a comma-separated list of integers, e.g. `"1,2,3"`.
 * `--consec LIST`: Find sequences that contain all terms specified by `LIST`, in the *specified* order, with *no* other terms in between. `LIST` is a comma-separated list of integers, e.g. `"1,2,3"`.
 * `--noterms LIST`: Find sequences that do *not* contain any term specified by `LIST`. `LIST` is a comma-separated list of integers, e.g. `"1,2,3"`.
@@ -48,7 +48,7 @@ All arguments are optional.
 * `--namefile FILE`: Read A-numbers and names of sequences from `FILE`. Default: `names`.
 * `--termfile FILE`: Read A-numbers and terms of sequences from `FILE`. Default: `stripped`.
 * `--quiet`: Do not print status messages ("reading file..." etc.).
-* `-h` or `--help`: print this information in a more condensed form and exit.
+* `-h` or `--help`: print a short summary of these command line arguments and exit.
 
 ## Example 1
 ```
