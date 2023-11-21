@@ -26,11 +26,22 @@ def parse_args():
         "arguments except --type, --sort and --format are case insensitive."
     )
 
-    # search
+    # search - names file
+    parser.add_argument(
+        "--minanum", type=int, default=0,
+        help="Minimum A-number. 0 or greater, default=0."
+    )
+    parser.add_argument(
+        "--maxanum", type=int, default=999999,
+        help="Maximum A-number. Greater than or equal to --minanum, default="
+        "999999."
+    )
     parser.add_argument(
         "--descr", type=str, default="",
         help="Find this text in sequence descriptions, e.g. 'prime'."
     )
+
+    # search - terms file
     parser.add_argument(
         "--terms", type=str, default="",
         help="Find sequences that contain all these terms, in any order, "
@@ -69,13 +80,10 @@ def parse_args():
         help="Only find sequences in which all terms are distinct."
     )
     parser.add_argument(
-        "--minanum", type=int, default=0,
-        help="Minimum A-number. 0 or greater, default=0."
-    )
-    parser.add_argument(
-        "--maxanum", type=int, default=999999,
-        help="Maximum A-number. Greater than or equal to --minanum, default="
-        "999999."
+        "--onlyfirst", type=int, default=0,
+        help="Only consider this many first terms in each sequence when "
+        "searching. (The rest are ignored.) 0 or greater. Default=0 (all "
+        "terms)."
     )
 
     # output
@@ -92,7 +100,7 @@ def parse_args():
         "A-number."
     )
     parser.add_argument(
-        "--maxterms", type=int, default=0,
+        "--maxprint", type=int, default=0,
         help="Do not print more than this many first terms of each sequence. "
         "A nonnegative integer. 0 = unlimited (default)."
     )
@@ -113,21 +121,25 @@ def parse_args():
 
     args = parser.parse_args()
 
-    # search
+    # search - names file
+    if args.minanum < 0:
+        sys.exit("Value of --minanum argument is not valid.")
+    if args.maxanum < args.minanum:
+        sys.exit("Value of --maxanum argument is not valid.")
+
+    # search - terms file
     if REGEX_INTEGER_LIST.search(args.terms) is None:
         sys.exit("Value of --terms argument is not valid.")
     if REGEX_INTEGER_LIST.search(args.consec) is None:
         sys.exit("Value of --consec argument is not valid.")
     if REGEX_INTEGER_LIST.search(args.noterms) is None:
         sys.exit("Value of --noterms argument is not valid.")
-    if args.minanum < 0:
-        sys.exit("Value of --minanum argument is not valid.")
-    if args.maxanum < args.minanum:
-        sys.exit("Value of --maxanum argument is not valid.")
+    if args.onlyfirst < 0:
+        sys.exit("Value of --onlyfirst argument is not valid.")
 
     # output
-    if args.maxterms < 0:
-        sys.exit("Value of --maxterms argument is not valid.")
+    if args.maxprint < 0:
+        sys.exit("Value of --maxprint argument is not valid.")
 
     # other
     if not os.path.isfile(args.namefile):
@@ -215,7 +227,9 @@ def main():
     finalResults = {}
     for (seq, terms) in parse_terms_file(args.termfile):
         if seq in nameResults:
-            terms = tuple(int(n) for n in terms.split(","))
+            allTerms = tuple(int(n) for n in terms.split(","))
+            # terms to search
+            terms = allTerms[:args.onlyfirst] if args.onlyfirst else allTerms
             if (
                 all(t in terms for t in argTermsParsed)
                 and is_slice_of(argConsecParsed, terms)
@@ -226,7 +240,7 @@ def main():
                 and (args.termorder != "d" or is_seq_descending(terms))
                 and (not args.distinct or len(terms) == len(set(terms)))
             ):
-                finalResults[seq] = ("???", terms)  # description added later
+                finalResults[seq] = ("???", allTerms) # description added later
     del nameResults
 
     if not args.quiet:
@@ -254,8 +268,8 @@ def main():
     # print results
     for seq in sortedResults:
         (descr, terms) = finalResults[seq]
-        if args.maxterms:
-            terms = terms[:args.maxterms]
+        if args.maxprint:
+            terms = terms[:args.maxprint]
         terms = ", ".join(str(t) for t in terms)
 
         if args.format == "m":

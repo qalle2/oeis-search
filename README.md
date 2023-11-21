@@ -12,11 +12,12 @@ Requires the files `names` and `stripped` from [here](https://oeis.org/wiki/Qand
 
 ## Command line help text
 ```
-usage: oeissearch.py [-h] [--descr DESCR] [--terms TERMS] [--consec CONSEC]
+usage: oeissearch.py [-h] [--minanum MINANUM] [--maxanum MAXANUM]
+                     [--descr DESCR] [--terms TERMS] [--consec CONSEC]
                      [--noterms NOTERMS] [--lower LOWER] [--upper UPPER]
-                     [--termorder {a,d,y}] [--distinct] [--minanum MINANUM]
-                     [--maxanum MAXANUM] [--sort {a,d,t}]
-                     [--format {m,adt,ad,at,a}] [--maxterms MAXTERMS]
+                     [--termorder {a,d,y}] [--distinct]
+                     [--onlyfirst ONLYFIRST] [--sort {a,d,t}]
+                     [--format {m,adt,ad,at,a}] [--maxprint MAXPRINT]
                      [--quiet] [--namefile NAMEFILE] [--termfile TERMFILE]
 
 Search offline dumps of the OEIS for sequences that match all specified
@@ -25,6 +26,9 @@ criteria. All arguments are optional. All arguments except --type, --sort and
 
 options:
   -h, --help            show this help message and exit
+  --minanum MINANUM     Minimum A-number. 0 or greater, default=0.
+  --maxanum MAXANUM     Maximum A-number. Greater than or equal to --minanum,
+                        default=999999.
   --descr DESCR         Find this text in sequence descriptions, e.g. 'prime'.
   --terms TERMS         Find sequences that contain all these terms, in any
                         order, possibly with other terms in between. A comma-
@@ -42,9 +46,10 @@ options:
                         (non-strictly) ascending, 'd' = (non-strictly)
                         descending, 'y' = any (default).
   --distinct            Only find sequences in which all terms are distinct.
-  --minanum MINANUM     Minimum A-number. 0 or greater, default=0.
-  --maxanum MAXANUM     Maximum A-number. Greater than or equal to --minanum,
-                        default=999999.
+  --onlyfirst ONLYFIRST
+                        Only consider this many first terms in each sequence
+                        when searching. (The rest are ignored.) 0 or greater.
+                        Default=0 (all terms).
   --sort {a,d,t}        Print results in this order: 'a' = by A-number
                         (default), 'd' = by description, 't' = by terms.
   --format {m,adt,ad,at,a}
@@ -52,7 +57,7 @@ options:
                         description & terms on multiple lines (default), 'adt'
                         = A-number & description & terms, 'ad' = A-number &
                         description, 'at' = A-number & terms, 'a' = A-number.
-  --maxterms MAXTERMS   Do not print more than this many first terms of each
+  --maxprint MAXPRINT   Do not print more than this many first terms of each
                         sequence. A nonnegative integer. 0 = unlimited
                         (default).
   --quiet               Do not print status messages ('reading file...' etc.).
