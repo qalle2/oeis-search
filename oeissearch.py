@@ -8,9 +8,6 @@ import argparse, os, re, sys
 REGEX_ANUM = re.compile(  # A-number or nothing
     r"^( A[0-9]{6} )?$", re.VERBOSE | re.IGNORECASE
 )
-REGEX_ANUM_PREFIX = re.compile(  # prefix of an A-number
-    r"^( A[0-9]{0,6} )?$", re.VERBOSE | re.IGNORECASE
-)
 REGEX_INTEGER_LIST = re.compile(  # zero or more integers separated by commas
     r"^( -?[0-9]+ ( ,-?[0-9]+ )* )?$", re.VERBOSE | re.IGNORECASE
 )
@@ -70,9 +67,13 @@ def parse_args():
         "ascending, 'nd' = nondescending, 'y' = any (default)."
     )
     parser.add_argument(
-        "--anumber", type=str, default="",
-        help="Find by A-number prefix ('A' followed by 0-6 digits). E.g. "
-        "'A000' will find sequences A000000-A000999."
+        "--minanum", type=int, default=0,
+        help="Minimum A-number. 0 or greater, default=0."
+    )
+    parser.add_argument(
+        "--maxanum", type=int, default=999999,
+        help="Maximum A-number. Greater than or equal to --minanum, default="
+        "999999."
     )
 
     # output
@@ -117,8 +118,10 @@ def parse_args():
         sys.exit("Value of --consec argument is not valid.")
     if REGEX_INTEGER_LIST.search(args.noterms) is None:
         sys.exit("Value of --noterms argument is not valid.")
-    if REGEX_ANUM_PREFIX.search(args.anumber) is None:
-        sys.exit("Value of --anumber argument is not valid.")
+    if args.minanum < 0:
+        sys.exit("Value of --minanum argument is not valid.")
+    if args.maxanum < args.minanum:
+        sys.exit("Value of --maxanum argument is not valid.")
 
     # output
     if args.maxterms < 0:
@@ -195,7 +198,7 @@ def main():
     nameResults = set()
     for (seq, descr) in parse_names_file(args.namefile):
         if (
-            seq.startswith(args.anumber.upper())
+            args.minanum <= int(seq[1:]) <= args.maxanum
             and args.descr.lower() in descr.lower()
         ):
             nameResults.add(seq)

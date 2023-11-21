@@ -14,9 +14,10 @@ Requires the files `names` and `stripped` from [here](https://oeis.org/wiki/Qand
 ```
 usage: oeissearch.py [-h] [--descr DESCR] [--terms TERMS] [--consec CONSEC]
                      [--noterms NOTERMS] [--lower LOWER] [--upper UPPER]
-                     [--type {a,nd,y}] [--anumber ANUMBER] [--sort {a,d,t}]
-                     [--format {m,adt,ad,at,a}] [--maxterms MAXTERMS]
-                     [--quiet] [--namefile NAMEFILE] [--termfile TERMFILE]
+                     [--type {a,nd,y}] [--minanum MINANUM] [--maxanum MAXANUM]
+                     [--sort {a,d,t}] [--format {m,adt,ad,at,a}]
+                     [--maxterms MAXTERMS] [--quiet] [--namefile NAMEFILE]
+                     [--termfile TERMFILE]
 
 Search offline dumps of the OEIS for sequences that match all specified
 criteria. All arguments are optional. All arguments except --type, --sort and
@@ -40,8 +41,9 @@ options:
   --type {a,nd,y}       Find sequences with their terms in this order: 'a' =
                         strictly ascending, 'nd' = nondescending, 'y' = any
                         (default).
-  --anumber ANUMBER     Find by A-number prefix ('A' followed by 0-6 digits).
-                        E.g. 'A000' will find sequences A000000-A000999.
+  --minanum MINANUM     Minimum A-number. 0 or greater, default=0.
+  --maxanum MAXANUM     Maximum A-number. Greater than or equal to --minanum,
+                        default=999999.
   --sort {a,d,t}        Print results in this order: 'a' = by A-number
                         (default), 'd' = by description, 't' = by terms.
   --format {m,adt,ad,at,a}
