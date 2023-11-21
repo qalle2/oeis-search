@@ -1,71 +1,54 @@
 # oeis-search
-Search offline dumps of the [On-Line Encyclopedia of Integer Sequences](https://oeis.org) (OEIS).
+Search for sequences in offline dumps of the [On-Line Encyclopedia of Integer Sequences](https://oeis.org) (OEIS). The program prints sequences that match *all* specified criteria.
 
 Table of contents:
 * [Requirements](#requirements)
-* [Command line help text](#command-line-help-text)
+* [Command line arguments](#command-line-arguments)
 * [Example 1](#example-1)
 * [Example 2](#example-2)
 
 ## Requirements
-Requires the files `names` and `stripped` from [here](https://oeis.org/wiki/QandA_For_New_OEIS#The_files_stripped.gz.2C_names.gz).
+Requires the files `names` and `stripped` from [here](https://oeis.org/wiki/QandA_For_New_OEIS#The_files_stripped.gz.2C_names.gz). Uncompress them in the same directory as this program.
 
-## Command line help text
-```
-usage: oeissearch.py [-h] [--minanum MINANUM] [--maxanum MAXANUM]
-                     [--descr DESCR] [--terms TERMS] [--consec CONSEC]
-                     [--noterms NOTERMS] [--lower LOWER] [--upper UPPER]
-                     [--termorder {a,d,y}] [--distinct]
-                     [--onlyfirst ONLYFIRST] [--sort {a,d,t}]
-                     [--format {m,adt,ad,at,a}] [--maxprint MAXPRINT]
-                     [--quiet] [--namefile NAMEFILE] [--termfile TERMFILE]
+## Command line arguments
+All arguments are optional.
 
-Search offline dumps of the OEIS for sequences that match all specified
-criteria. All arguments are optional. All arguments except --type, --sort and
---format are case insensitive.
+### How to search the names file
+* `--minanum INTEGER`: Find sequences whose A-number is greater than or equal to `INTEGER`. `INTEGER` must be 0 or greater. The default is 0.
+* `--maxanum INTEGER`: Find sequences whose A-number is less than or equal to `INTEGER`. `INTEGER` must be greater than or equal to `--minanum`. The default is 999999.
+* `--descr TEXT`: Find sequences whose description contains `TEXT` case-insensitively.
 
-options:
-  -h, --help            show this help message and exit
-  --minanum MINANUM     Minimum A-number. 0 or greater, default=0.
-  --maxanum MAXANUM     Maximum A-number. Greater than or equal to --minanum,
-                        default=999999.
-  --descr DESCR         Find this text in sequence descriptions, e.g. 'prime'.
-  --terms TERMS         Find sequences that contain all these terms, in any
-                        order, possibly with other terms in between. A comma-
-                        separated list of integers, e.g. '1,2,3'.
-  --consec CONSEC       Find sequences that contain all these terms, in the
-                        specified order, with no other terms in between. A
-                        comma-separated list of integers, e.g. '1,2,3'.
-  --noterms NOTERMS     Find sequences that do not contain any of these terms.
-                        A comma-separated list of integers, e.g. '1,2,3'.
-  --lower LOWER         Find sequences whose smallest term is this or greater.
-                        An integer.
-  --upper UPPER         Find sequences whose greatest term is this or smaller.
-                        An integer.
-  --termorder {a,d,y}   Find sequences with their terms in this order: 'a' =
-                        (non-strictly) ascending, 'd' = (non-strictly)
-                        descending, 'y' = any (default).
-  --distinct            Only find sequences in which all terms are distinct.
-  --onlyfirst ONLYFIRST
-                        Only consider this many first terms in each sequence
-                        when searching. (The rest are ignored.) 0 or greater.
-                        Default=0 (all terms).
-  --sort {a,d,t}        Print results in this order: 'a' = by A-number
-                        (default), 'd' = by description, 't' = by terms.
-  --format {m,adt,ad,at,a}
-                        How to print each sequence: 'm' = A-number &
-                        description & terms on multiple lines (default), 'adt'
-                        = A-number & description & terms, 'ad' = A-number &
-                        description, 'at' = A-number & terms, 'a' = A-number.
-  --maxprint MAXPRINT   Do not print more than this many first terms of each
-                        sequence. A nonnegative integer. 0 = unlimited
-                        (default).
-  --quiet               Do not print status messages ('reading file...' etc.).
-  --namefile NAMEFILE   File to read descriptions of sequences from. Default:
-                        'names'.
-  --termfile TERMFILE   File to read terms of sequences from. Default:
-                        'stripped'.
-```
+### How to search the terms file
+* `--onlyfirst INTEGER`: When searching, only consider `INTEGER` first terms in each sequence. (The rest are ignored.) `INTEGER` must be 0 or greater. 0 means all terms are searched. The default is 0. This option affects all other options in this section.
+* `--terms LIST`: Find sequences that contain all terms specified by `LIST`, in *any* order, possibly *with* other terms in between. `LIST` is a comma-separated list of integers, e.g. `"1,2,3"`.
+* `--consec LIST`: Find sequences that contain all terms specified by `LIST`, in the *specified* order, with *no* other terms in between. `LIST` is a comma-separated list of integers, e.g. `"1,2,3"`.
+* `--noterms LIST`: Find sequences that do *not* contain any term specified by `LIST`. `LIST` is a comma-separated list of integers, e.g. `"1,2,3"`.
+* `--lower INTEGER`: Find sequences whose *smallest* term is `INTEGER` or *greater*.
+* `--upper INTEGER`: Find sequences whose *greatest* term is `INTEGER` or *smaller*.
+* `--termorder ORDER`: Find sequences whose terms are in `ORDER`. `ORDER` is one of the following:
+  * `a` = (non-strictly) ascending
+  * `d` = (non-strictly) descending
+  * `y` = any (the default).
+* `--distinct`: Only find sequences whose terms are all distinct.
+
+### How to output the results
+* `--sort ORDER`: Print results in `ORDER`. `ORDER` is one of the following:
+  * `a` = by A-number (the default)
+  * `d` = by description
+  * `t` = by terms.
+* `--format FORMAT`: Print information about each sequence in `FORMAT`. `FORMAT` is one of the following:
+  * `m` = A-number, description and terms on multiple lines (the default)
+  * `adt` = A-number, description and terms on a single line
+  * `ad` = A-number & description on a single line
+  * `at` = A-number & terms on a single line
+  * `a` = A-number on a single line.
+* `--maxprint INTEGER`: Do not print more than `INTEGER` first terms of each sequence. `INTEGER` must be 0 or greater. 0 means all terms are printed. The default is 0.
+
+### Miscellaneous options
+* `--namefile FILE`: Read A-numbers and names of sequences from `FILE`. Default: `names`.
+* `--termfile FILE`: Read A-numbers and terms of sequences from `FILE`. Default: `stripped`.
+* `--quiet`: Do not print status messages ("reading file..." etc.).
+* `-h` or `--help`: print this information in a more condensed form and exit.
 
 ## Example 1
 ```

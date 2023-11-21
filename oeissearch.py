@@ -22,101 +22,85 @@ def parse_args():
 
     parser = argparse.ArgumentParser(
         description="Search offline dumps of the OEIS for sequences that "
-        "match all specified criteria. All arguments are optional. All "
-        "arguments except --type, --sort and --format are case insensitive."
+        "match all specified criteria. See the file README.md for details."
     )
 
     # search - names file
     parser.add_argument(
         "--minanum", type=int, default=0,
-        help="Minimum A-number. 0 or greater, default=0."
+        help="Minimum A-number."
     )
     parser.add_argument(
         "--maxanum", type=int, default=999999,
-        help="Maximum A-number. Greater than or equal to --minanum, default="
-        "999999."
+        help="Maximum A-number."
     )
     parser.add_argument(
         "--descr", type=str, default="",
-        help="Find this text in sequence descriptions, e.g. 'prime'."
+        help="Text in sequence descriptions."
     )
 
     # search - terms file
     parser.add_argument(
+        "--onlyfirst", type=int, default=0,
+        help="Only consider this many first terms."
+    )
+    parser.add_argument(
         "--terms", type=str, default="",
-        help="Find sequences that contain all these terms, in any order, "
-        "possibly with other terms in between. A comma-separated list of "
-        "integers, e.g. '1,2,3'."
+        help="All these terms."
     )
     parser.add_argument(
         "--consec", type=str, default="",
-        help="Find sequences that contain all these terms, in the specified "
-        "order, with no other terms in between. A comma-separated list of "
-        "integers, e.g. '1,2,3'."
+        help="All these terms, in this order, without other terms in between."
     )
     parser.add_argument(
         "--noterms", type=str, default="",
-        help="Find sequences that do not contain any of these terms. A "
-        "comma-separated list of integers, e.g. '1,2,3'."
+        help="None of these terms."
     )
     parser.add_argument(
         "--lower", type=int, default=None,
-        help="Find sequences whose smallest term is this or greater. An "
-        "integer."
+        help="Smallest term is this or greater."
     )
     parser.add_argument(
         "--upper", type=int, default=None,
-        help="Find sequences whose greatest term is this or smaller. An "
-        "integer."
+        help="Greatest term is this or smaller."
     )
     parser.add_argument(
         "--termorder", choices=("a", "d", "y"), default="y",
-        help="Find sequences with their terms in this order: 'a' = (non-"
-        "strictly) ascending, 'd' = (non-strictly) descending, 'y' = any "
-        "(default)."
+        help="Order of terms: 'a' = ascending, 'd' = descending, 'y' = any."
     )
     parser.add_argument(
         "--distinct", action="store_true",
-        help="Only find sequences in which all terms are distinct."
-    )
-    parser.add_argument(
-        "--onlyfirst", type=int, default=0,
-        help="Only consider this many first terms in each sequence when "
-        "searching. (The rest are ignored.) 0 or greater. Default=0 (all "
-        "terms)."
+        help="No duplicate terms."
     )
 
     # output
     parser.add_argument(
         "--sort", choices=("a", "d", "t"), default="a",
-        help="Print results in this order: 'a' = by A-number (default), 'd' = "
-        "by description, 't' = by terms."
+        help="Sort results by: 'a' = A-number, 'd' = description, 't' = terms."
     )
     parser.add_argument(
         "--format", choices=("m", "adt", "ad", "at", "a"), default="m",
-        help="How to print each sequence: 'm' = A-number & description & "
-        "terms on multiple lines (default), 'adt' = A-number & description & "
-        "terms, 'ad' = A-number & description, 'at' = A-number & terms, 'a' = "
-        "A-number."
+        help="Print results as: 'm' = multiline, 'adt' = A-number & "
+        "description & terms, 'ad' = A-number & description, 'at' = A-number "
+        "& terms, 'a' = A-number."
     )
     parser.add_argument(
         "--maxprint", type=int, default=0,
-        help="Do not print more than this many first terms of each sequence. "
-        "A nonnegative integer. 0 = unlimited (default)."
+        help="Only print this many first terms."
     )
     parser.add_argument(
         "--quiet", action="store_true",
-        help="Do not print status messages ('reading file...' etc.)."
+        help="Don't print status messages."
     )
 
     # other
     parser.add_argument(
         "--namefile", type=str, default="names",
-        help="File to read descriptions of sequences from. Default: 'names'."
+        help="File with sequence names."
     )
     parser.add_argument(
         "--termfile", type=str, default="stripped",
-        help="File to read terms of sequences from. Default: 'stripped'."
+        help="File with sequence terms."
     )
 
     args = parser.parse_args()
@@ -128,14 +112,14 @@ def parse_args():
         sys.exit("Value of --maxanum argument is not valid.")
 
     # search - terms file
+    if args.onlyfirst < 0:
+        sys.exit("Value of --onlyfirst argument is not valid.")
     if REGEX_INTEGER_LIST.search(args.terms) is None:
         sys.exit("Value of --terms argument is not valid.")
     if REGEX_INTEGER_LIST.search(args.consec) is None:
         sys.exit("Value of --consec argument is not valid.")
     if REGEX_INTEGER_LIST.search(args.noterms) is None:
         sys.exit("Value of --noterms argument is not valid.")
-    if args.onlyfirst < 0:
-        sys.exit("Value of --onlyfirst argument is not valid.")
 
     # output
     if args.maxprint < 0:
