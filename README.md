@@ -39,10 +39,10 @@ All arguments are optional.
 * `--format FORMAT`: Print information about each sequence in `FORMAT`. `FORMAT` is one of the following:
   * `m` = A-number, description and terms on multiple lines (the default)
   * `adt` = A-number, description and terms on a single line
-  * `ad` = A-number & description on a single line
-  * `at` = A-number & terms on a single line
+  * `ad` = A-number and description on a single line
+  * `at` = A-number and terms on a single line
   * `a` = A-number on a single line.
-* `--maxprint INTEGER`: Do not print more than `INTEGER` first terms of each sequence. `INTEGER` must be 0 or greater. 0 means all terms are printed. The default is 0.
+* `--printfirst INTEGER`: Do not print more than `INTEGER` first terms of each sequence. `INTEGER` must be 0 or greater. 0 means all terms are printed. The default is 0.
 
 ### Miscellaneous options
 * `--namefile FILE`: Read A-numbers and names of sequences from `FILE`. Default: `names`.

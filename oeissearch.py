@@ -45,7 +45,7 @@ def parse_args():
     parser.add_argument(
         "--format", choices=("m", "adt", "ad", "at", "a"), default="m"
     )
-    parser.add_argument("--maxprint", type=int, default=0)
+    parser.add_argument("--printfirst", type=int, default=0)
     parser.add_argument("--quiet", action="store_true")
 
     # other
@@ -71,8 +71,8 @@ def parse_args():
         sys.exit("Value of --noterms argument is not valid.")
 
     # output
-    if args.maxprint < 0:
-        sys.exit("Value of --maxprint argument is not valid.")
+    if args.printfirst < 0:
+        sys.exit("Value of --printfirst argument is not valid.")
 
     # other
     if not os.path.isfile(args.namefile):
@@ -204,8 +204,8 @@ def main():
     # print results
     for seq in sortedResults:
         (descr, terms) = finalResults[seq]
-        if args.maxprint:
-            terms = terms[:args.maxprint]
+        if args.printfirst:
+            terms = terms[:args.printfirst]
         terms = ", ".join(str(t) for t in terms)
 
         if args.format == "m":
