@@ -35,8 +35,10 @@ def parse_args():
     parser.add_argument("--noterms", type=str, default="")
     parser.add_argument("--lower", type=int, default=None)
     parser.add_argument("--upper", type=int, default=None)
-    parser.add_argument("--termorder", choices=("a", "d", "y"), default="y")
-    parser.add_argument("--distinct", action="store_true")
+    parser.add_argument(
+        "--termorder", choices=("a", "d", "n", "y"), default="y"
+    )
+    parser.add_argument("--distinct", choices=("y", "n", "a"), default="a")
 
     # output
     parser.add_argument("--sort", choices=("a", "d", "t"), default="a")
@@ -175,7 +177,12 @@ def main():
                 and (args.upper is None or max(terms) <= args.upper)
                 and (args.termorder != "a" or is_seq_ascending(terms))
                 and (args.termorder != "d" or is_seq_descending(terms))
-                and (not args.distinct or len(terms) == len(set(terms)))
+                and (
+                    args.termorder != "n" or
+                    not (is_seq_ascending(terms) or is_seq_descending(terms))
+                )
+                and (not args.distinct == "y" or len(set(terms)) == len(terms))
+                and (not args.distinct == "n" or len(set(terms)) <  len(terms))
             ):
                 finalResults[seq] = ("?", allTerms)  # description added later
     del nameResults

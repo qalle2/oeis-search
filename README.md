@@ -27,10 +27,14 @@ Tip: to speed up the search, specify at least one of these options.
 * `--lower INTEGER`: Find sequences whose *smallest* term is `INTEGER` or *greater*.
 * `--upper INTEGER`: Find sequences whose *greatest* term is `INTEGER` or *smaller*.
 * `--termorder ORDER`: Find sequences whose terms are in `ORDER`. `ORDER` is one of the following:
-  * `a` = (non-strictly) ascending
-  * `d` = (non-strictly) descending
+  * `a` = (non-strictly) ascending (e.g. 1, 1, 2, &hellip;)
+  * `d` = (non-strictly) descending (e.g. 2, 2, 1, &hellip;)
+  * `n` = neither ascending or descending (e.g. 1, 2, 1, &hellip;)
   * `y` = any (the default).
-* `--distinct`: Only find sequences whose terms are all distinct.
+* `--distinct DISTINCT`: Find sequences with distinct values? `DISTINCT` is one of the following:
+  * `y` = yes (find sequences whose values are all distinct)
+  * `n` = no (find sequences containing at least some duplicate values)
+  * `a` = any (the default)
 
 ### How to output the results
 * `--sort ORDER`: Print results in `ORDER`. `ORDER` is one of the following:
@@ -54,7 +58,7 @@ Tip: to speed up the search, specify at least one of these options.
 ## Example 1
 ```
 $ python3 oeissearch.py --descr "prime" --terms "1,4,5,9,64" --termorder a \
---distinct --sort d
+--distinct y --sort d
 Searching 'names'...
 Searching 'stripped'...
 Found 256 sequence(s).
