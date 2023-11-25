@@ -1,10 +1,8 @@
-# search offline dumps of the On-Line Encyclopedia of Integer Sequences;
-# requires the files "names" and "stripped" from
-# https://oeis.org/wiki/QandA_For_New_OEIS#The_files_stripped.gz.2C_names.gz
+# search offline dumps of the OEIS
 
 import argparse, os, re, sys
 
-# regexes for validating command line arguments
+# regex for validating command line arguments
 REGEX_INTEGER_LIST = re.compile(  # zero or more integers separated by commas
     r"^( -?[0-9]+ ( ,-?[0-9]+ )* )?$", re.VERBOSE | re.IGNORECASE
 )
@@ -58,7 +56,10 @@ def parse_args():
     if args.minanum < 0:
         sys.exit("Value of --minanum argument is not valid.")
     if args.maxanum < args.minanum:
-        sys.exit("Value of --maxanum argument is not valid.")
+        sys.exit(
+            "Value of --maxanum argument must be greater than or equal to "
+            "value of --minanum argument."
+        )
 
     # search - terms file
     if args.searchfirst < 0:
@@ -86,7 +87,7 @@ def parse_names_file(filename):
     # parse OEIS names file; syntax:
     #     # comment
     #     A000000 description
-    # generate: (a_number, description)
+    # generate: ("A000000", "description")
 
     with open(filename, "rt") as handle:
         handle.seek(0)
@@ -112,7 +113,7 @@ def parse_terms_file(filename):
                 match = REGEX_TERMS_LINE.search(line)
                 if match is None:
                     sys.exit("Syntax error in terms file: " + line)
-                # don't split the terms here (slow and not always needed)
+                # don't split the terms yet (slow and not always needed)
                 yield match.group(1, 2)
 
 def parse_int_list(stri):
@@ -154,13 +155,13 @@ def main():
     argConsecParsed = parse_int_list(args.consec)
     argNoTermsParsed = parse_int_list(args.noterms)
 
-    # get final results from nameResults and the terms file
+    # get final results from names file results and the terms file
     if not args.quiet:
         print(f"Searching '{args.termfile}'...")
     finalResults = {}
-    for (seq, terms) in parse_terms_file(args.termfile):
+    for (seq, allTerms) in parse_terms_file(args.termfile):
         if seq in nameResults:
-            allTerms = tuple(int(n) for n in terms.split(","))
+            allTerms = tuple(int(n) for n in allTerms.split(","))
             # terms to search
             if args.searchfirst:
                 terms = allTerms[:args.searchfirst]
@@ -176,11 +177,12 @@ def main():
                 and (args.termorder != "d" or is_seq_descending(terms))
                 and (not args.distinct or len(terms) == len(set(terms)))
             ):
-                finalResults[seq] = ("???", allTerms) # description added later
+                finalResults[seq] = ("?", allTerms)  # description added later
     del nameResults
 
     if not args.quiet:
         print(f"Found {len(finalResults)} sequence(s).")
+        print()
 
     # get descriptions of final results
     for (seq, descr) in parse_names_file(args.namefile):
@@ -197,9 +199,6 @@ def main():
         sortedResults = sorted(finalResults, key=lambda s: finalResults[s][1])
     else:
         sys.exit("Unexpected error.")
-
-    if not args.quiet:
-        print()
 
     # print results
     for seq in sortedResults:

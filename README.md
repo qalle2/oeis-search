@@ -8,12 +8,13 @@ Table of contents:
 * [Example 2](#example-2)
 
 ## Requirements
-Requires the files `names` and `stripped` from [here](https://oeis.org/wiki/QandA_For_New_OEIS#The_files_stripped.gz.2C_names.gz). Uncompress them in the same directory as this program.
+Requires the files `names` and `stripped` from [here](https://oeis.org/wiki/QandA_For_New_OEIS#The_files_stripped.gz.2C_names.gz). Download `names.gz` and `stripped.gz` and uncompress them in the same directory as this program. (Use `gunzip` on Linux or 7-Zip on Windows to uncompress.)
 
 ## Command line arguments
 All arguments are optional.
 
 ### How to search the names file
+Tip: to speed up the search, specify at least one of these options.
 * `--minanum INTEGER`: Find sequences whose A-number is greater than or equal to `INTEGER`. `INTEGER` must be 0 or greater. The default is 0.
 * `--maxanum INTEGER`: Find sequences whose A-number is less than or equal to `INTEGER`. `INTEGER` must be greater than or equal to `--minanum`. The default is 999999.
 * `--descr TEXT`: Find sequences whose description contains `TEXT` case-insensitively.
