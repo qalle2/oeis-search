@@ -203,10 +203,10 @@ def main():
     # sort results (always first by A-number to ensure determinism)
     sortedResults = sorted(finalResults)
     if args.sort == "d":
-        sortedResults = sorted(finalResults, key=lambda s: finalResults[s][0])
+        sortedResults.sort(key=lambda s: finalResults[s][0])
         sortedResults.sort(key=lambda s: finalResults[s][0].lower())
     elif args.sort == "t":
-        sortedResults = sorted(finalResults, key=lambda s: finalResults[s][1])
+        sortedResults.sort(key=lambda s: finalResults[s][1])
 
     # print results
     for seq in sortedResults:
