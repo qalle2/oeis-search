@@ -33,8 +33,10 @@ def parse_args():
     parser.add_argument("--terms", type=str, default="")
     parser.add_argument("--consec", type=str, default="")
     parser.add_argument("--noterms", type=str, default="")
-    parser.add_argument("--lower", type=int, default=None)
-    parser.add_argument("--upper", type=int, default=None)
+    parser.add_argument("--minmin", type=int, default=None)
+    parser.add_argument("--minmax", type=int, default=None)
+    parser.add_argument("--maxmin", type=int, default=None)
+    parser.add_argument("--maxmax", type=int, default=None)
     parser.add_argument(
         "--termorder", choices=("a", "d", "n", "y"), default="y"
     )
@@ -173,8 +175,10 @@ def main():
                 all(t in terms for t in argTermsParsed)
                 and is_slice_of(argConsecParsed, terms)
                 and not any(t in terms for t in argNoTermsParsed)
-                and (args.lower is None or min(terms) >= args.lower)
-                and (args.upper is None or max(terms) <= args.upper)
+                and (args.minmin is None or min(terms) >= args.minmin)
+                and (args.minmax is None or min(terms) <= args.minmax)
+                and (args.maxmin is None or max(terms) >= args.maxmin)
+                and (args.maxmax is None or max(terms) <= args.maxmax)
                 and (args.termorder != "a" or is_seq_ascending(terms))
                 and (args.termorder != "d" or is_seq_descending(terms))
                 and (
@@ -196,16 +200,13 @@ def main():
         if seq in finalResults:
             finalResults[seq] = (descr, finalResults[seq][1])
 
-    # sort results
-    if args.sort == "a":
-        sortedResults = sorted(finalResults)
-    elif args.sort == "d":
+    # sort results (always first by A-number to ensure determinism)
+    sortedResults = sorted(finalResults)
+    if args.sort == "d":
         sortedResults = sorted(finalResults, key=lambda s: finalResults[s][0])
         sortedResults.sort(key=lambda s: finalResults[s][0].lower())
     elif args.sort == "t":
         sortedResults = sorted(finalResults, key=lambda s: finalResults[s][1])
-    else:
-        sys.exit("Unexpected error.")
 
     # print results
     for seq in sortedResults:

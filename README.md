@@ -24,8 +24,10 @@ Tip: to speed up the search, specify at least one of these options.
 * `--terms LIST`: Find sequences that contain all terms specified by `LIST`, in *any* order, possibly *with* other terms in between. `LIST` is a comma-separated list of integers, e.g. `"1,2,3"`.
 * `--consec LIST`: Find sequences that contain all terms specified by `LIST`, in the *specified* order, with *no* other terms in between. `LIST` is a comma-separated list of integers, e.g. `"1,2,3"`.
 * `--noterms LIST`: Find sequences that do *not* contain any term specified by `LIST`. `LIST` is a comma-separated list of integers, e.g. `"1,2,3"`.
-* `--lower INTEGER`: Find sequences whose *smallest* term is `INTEGER` or *greater*.
-* `--upper INTEGER`: Find sequences whose *greatest* term is `INTEGER` or *smaller*.
+* `--minmin INTEGER`: Find sequences whose *smallest* term is `INTEGER` or *greater*.
+* `--minmax INTEGER`: Find sequences whose *smallest* term is `INTEGER` or *smaller*.
+* `--maxmin INTEGER`: Find sequences whose *greatest* term is `INTEGER` or *greater*.
+* `--maxmax INTEGER`: Find sequences whose *greatest* term is `INTEGER` or *smaller*.
 * `--termorder ORDER`: Find sequences whose terms are in `ORDER`. `ORDER` is one of the following:
   * `a` = (non-strictly) ascending (e.g. 1, 1, 2, &hellip;)
   * `d` = (non-strictly) descending (e.g. 2, 2, 1, &hellip;)
@@ -80,7 +82,7 @@ A080197: 13-smooth numbers: numbers whose prime divisors are all <= 13.
 
 ## Example 2
 ```
-$ python3 oeissearch.py --consec 19,84 --upper 200 --format ad --quiet
+$ python3 oeissearch.py --consec 19,84 --maxmax 200 --format ad --quiet
 A065266: A065264 conjugated with A059893, inverse of A065265.
 A065290: A065288 conjugated with A059893, inverse of A065289.
 A173823: a(n) shows the digit sum of a(n+1) + a(n+2).
